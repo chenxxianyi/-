@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>知识型阅读工作台 H5 Demo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="主导航">
+        <div class="brand">
+          <div class="brand-mark">KR</div>
+          <div>
+            <div class="brand-name">阅读工作台</div>
+            <div class="brand-subtitle">Knowledge Reader</div>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-item active" data-view="dashboard">
+            <span class="nav-icon">D</span>
+            <span>工作台</span>
+          </button>
+          <button class="nav-item" data-view="documents">
+            <span class="nav-icon">F</span>
+            <span>文件库</span>
+          </button>
+          <button class="nav-item" data-view="reader">
+            <span class="nav-icon">R</span>
+            <span>阅读器</span>
+          </button>
+          <button class="nav-item" data-view="notes">
+            <span class="nav-icon">N</span>
+            <span>笔记</span>
+          </button>
+          <button class="nav-item" data-view="settings">
+            <span class="nav-icon">S</span>
+            <span>设置</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="storage-row">
+            <span>存储空间</span>
+            <span>2.4 / 10 GB</span>
+          </div>
+          <div class="storage-track">
+            <span style="width: 24%"></span>
+          </div>
+        </div>
+      </aside>
+
+      <div class="workspace">
+        <header class="header-bar">
+          <button class="mobile-menu" aria-label="打开导航">Menu</button>
+          <div>
+            <div class="header-title" id="headerTitle">工作台</div>
+            <div class="header-subtitle" id="headerSubtitle">继续阅读、整理批注和笔记</div>
+          </div>
+          <div class="header-actions">
+            <label class="search-field">
+              <span>Search</span>
+              <input id="globalSearch" type="search" placeholder="搜索文档、批注、笔记" />
+            </label>
+            <button class="button secondary" id="syncButton">同步</button>
+            <button class="button primary" data-view-trigger="documents">上传文件</button>
+          </div>
+        </header>
+
+        <main class="main-content">
+          <section class="view active" id="view-dashboard" aria-labelledby="dashboardTitle">
+            <div class="page-heading">
+              <div>
+                <p class="eyebrow">Today</p>
+                <h1 id="dashboardTitle">晚上好，继续你的阅读流</h1>
+              </div>
+              <button class="button primary" data-view-trigger="documents">快速上传</button>
+            </div>
+
+            <div class="dashboard-grid">
+              <section class="surface-section continue-section">
+                <div class="section-head">
+                  <h2>继续阅读</h2>
+                  <button class="text-button" data-view-trigger="reader">打开阅读器</button>
+                </div>
+                <div class="reading-list">
+                  <button class="reading-row" data-view-trigger="reader">
+                    <div class="file-badge pdf">PDF</div>
+                    <div class="reading-main">
+                      <strong>深度学习论文阅读方法.pdf</strong>
+                      <span>第 12 页 · 上次阅读 18 分钟前</span>
+                    </div>
+                    <div class="progress-meta">
+                      <span>64%</span>
+                      <div class="mini-progress"><span style="width: 64%"></span></div>
+                    </div>
+                  </button>
+                  <button class="reading-row" data-view-trigger="reader">
+                    <div class="file-badge md">MD</div>
+                    <div class="reading-main">
+                      <strong>产品调研摘录.md</strong>
+                      <span>定位到“用户访谈框架”</span>
+                    </div>
+                    <div class="progress-meta">
+                      <span>38%</span>
+                      <div class="mini-progress"><span style="width: 38%"></span></div>
+                    </div>
+                  </button>
+                  <button class="reading-row" data-view-trigger="reader">
+                    <div class="file-badge docx">DOCX</div>
+                    <div class="reading-main">
+                      <strong>行业分析报告.docx</strong>
+                      <span>摘要章节 · 昨天</span>
+                    </div>
+                    <div class="progress-meta">
+                      <span>22%</span>
+                      <div class="mini-progress"><span style="width: 22%"></span></div>
+                    </div>
+                  </button>
+                </div>
+              </section>
+
+              <section class="surface-section">
+                <div class="section-head">
+                  <h2>最近批注</h2>
+                  <button class="text-button" data-view-trigger="reader">查看全部</button>
+                </div>
+                <div class="annotation-feed" id="dashboardAnnotations"></div>
+              </section>
+            </div>
+
+            <section class="surface-section recent-files-section">
+              <div class="section-head">
+                <h2>最近上传</h2>
+                <button class="text-button" data-view-trigger="documents">进入文件库</button>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>文件名</th>
+                      <th>类型</th>
+                      <th>大小</th>
+                      <th>最近阅读</th>
+                      <th>批注</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recentFilesBody"></tbody>
+                </table>
+              </div>
+            </section>
+          </section>
+
+          <section class="view" id="view-documents" aria-labelledby="documentsTitle">
+            <div class="page-heading compact">
+              <div>
+                <p class="eyebrow">Library</p>
+                <h1 id="documentsTitle">文件库</h1>
+              </div>
+              <div class="view-actions">
+                <button class="button secondary" id="renameSelected">重命名</button>
+                <button class="button primary" id="uploadTrigger">上传文件</button>
+              </div>
+            </div>
+
+            <div class="documents-layout">
+              <aside class="filter-panel">
+                <div class="filter-group">
+                  <h3>文件类型</h3>
+                  <button class="filter-item active" data-filter="all">全部文件 <span id="countAll"></span></button>
+                  <button class="filter-item" data-filter="pdf">PDF</button>
+                  <button class="filter-item" data-filter="md">Markdown</button>
+                  <button class="filter-item" data-filter="txt">TXT</button>
+                  <button class="filter-item" data-filter="docx">DOCX</button>
+                </div>
+                <div class="filter-group">
+                  <h3>标签</h3>
+                  <button class="filter-item subtle">论文</button>
+                  <button class="filter-item subtle">产品研究</button>
+                  <button class="filter-item subtle">会议资料</button>
+                </div>
+              </aside>
+
+              <section class="document-panel">
+                <div class="document-toolbar">
+                  <label class="search-field wide">
+                    <span>Search</span>
+                    <input id="documentSearch" type="search" placeholder="搜索文件名、类型或标签" />
+                  </label>
+                  <select id="sortSelect" class="select-field" aria-label="排序">
+                    <option value="recent">最近阅读</option>
+                    <option value="upload">上传时间</option>
+                    <option value="name">文件名</option>
+                  </select>
+                </div>
+
+                <div class="upload-zone" id="uploadZone">
+                  <div>
+                    <strong>拖拽文件到这里上传</strong>
+                    <span>支持 PDF、Markdown、TXT、DOCX 和图片，单文件最大 50MB</span>
+                  </div>
+                  <button class="button secondary">选择文件</button>
+                </div>
+                <div class="upload-progress hidden" id="uploadProgress">
+                  <span></span>
+                  <div><span></span></div>
+                </div>
+
+                <div class="table-wrap">
+                  <table class="data-table document-table">
+                    <thead>
+                      <tr>
+                        <th>文件名</th>
+                        <th>类型</th>
+                        <th>大小</th>
+                        <th>上传时间</th>
+                        <th>最近阅读</th>
+                        <th>批注</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody id="documentsBody"></tbody>
+                  </table>
+                </div>
+                <div class="empty-state hidden" id="documentsEmpty">
+                  <strong>暂无匹配文件</strong>
+                  <span>换一个关键词，或上传第一份文档开始阅读。</span>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section class="view reader-view" id="view-reader" aria-labelledby="readerTitle">
+            <div class="reader-topbar">
+              <button class="icon-button" data-view-trigger="documents" aria-label="返回文件库">←</button>
+              <div class="reader-file-title">
+                <strong id="readerTitle">深度学习论文阅读方法.pdf</strong>
+                <span>PDF · 已保存到第 12 页</span>
+              </div>
+              <div class="reader-tools">
+                <button class="tool-button">搜索</button>
+                <button class="tool-button" id="zoomOut">−</button>
+                <span class="zoom-value" id="zoomValue">100%</span>
+                <button class="tool-button" id="zoomIn">+</button>
+                <button class="tool-button">专注</button>
+                <button class="button primary small" id="summaryButton">AI 总结</button>
+              </div>
+            </div>
+
+            <div class="reader-shell">
+              <aside class="reader-left-panel">
+                <div class="panel-section">
+                  <h3>目录</h3>
+                  <button class="outline-item active">摘要与问题定义</button>
+                  <button class="outline-item">相关研究</button>
+                  <button class="outline-item">方法与实验</button>
+                  <button class="outline-item">结论与限制</button>
+                </div>
+                <div class="panel-section">
+                  <h3>页面</h3>
+                  <div class="thumb-list">
+                    <button class="page-thumb active">12</button>
+                    <button class="page-thumb">13</button>
+                    <button class="page-thumb">14</button>
+                  </div>
+                </div>
+                <div class="panel-section muted-box">
+                  <h3>文件信息</h3>
+                  <p>24 页 · 18,420 字 · 12 条批注</p>
+                </div>
+              </aside>
+
+              <section class="reader-stage" id="readerStage">
+                <div class="reader-page" id="readerPage">
+                  <div class="pdf-page-label">Page 12</div>
+                  <article class="reader-page-content" id="readerContent">
+                    <h2>阅读复杂文档时，批注是理解的外部记忆</h2>
+                    <p>
+                      在长文档阅读中，用户并不是简单地从第一页顺序读到最后一页。更常见的行为是来回跳转、标记关键段落、记录疑问，并在之后重新组织这些片段。
+                      因此，一个阅读工作台需要把文档、批注、摘录和笔记放在同一个上下文中，而不是把它们拆散到不同工具里。
+                    </p>
+                    <p>
+                      <mark class="highlight-yellow">稳定的高亮位置需要保存相对坐标，而不是固定像素。</mark>
+                      当 PDF 缩放或页面重新渲染时，百分比坐标可以让覆盖层跟随页面尺寸变化，减少错位问题。
+                    </p>
+                    <p>
+                      对 Markdown 和 TXT 来说，MVP 阶段可以先保存选中文本和简化 range 信息。后续如果要支持编辑后的重新定位，则需要引入文本锚点系统，例如 quote selector 和 position selector 的组合。
+                    </p>
+                    <p>
+                      AI 阅读助手应该是辅助工具。它可以帮助用户总结文档、解释术语、翻译片段或基于文档提问，但它不应该在界面上喧宾夺主。真正的主角始终是文档内容和用户自己的思考。
+                    </p>
+                  </article>
+                </div>
+                <div class="selection-toolbar hidden" id="selectionToolbar" role="toolbar" aria-label="选中文本工具栏">
+                  <button data-action="yellow" title="黄色高亮">黄</button>
+                  <button data-action="blue" title="蓝色高亮">蓝</button>
+                  <button data-action="green" title="绿色高亮">绿</button>
+                  <button data-action="underline" title="红色下划线">下划线</button>
+                  <button data-action="note" title="添加批注">批注</button>
+                  <button data-action="excerpt" title="摘录到笔记">摘录</button>
+                  <button data-action="explain" title="AI 解释">AI</button>
+                </div>
+              </section>
+
+              <aside class="reader-right-panel">
+                <div class="panel-tabs">
+                  <button class="tab-button active" data-reader-tab="annotations">批注</button>
+                  <button class="tab-button" data-reader-tab="excerpts">摘录</button>
+                  <button class="tab-button" data-reader-tab="ai">AI 助手</button>
+                </div>
+                <div class="tab-pane active" id="tab-annotations">
+                  <div class="annotation-list" id="annotationList"></div>
+                </div>
+                <div class="tab-pane" id="tab-excerpts">
+                  <div class="note-list compact" id="excerptList"></div>
+                </div>
+                <div class="tab-pane ai-pane" id="tab-ai">
+                  <div class="ai-actions">
+                    <button class="button secondary" data-ai="summary">总结当前文档</button>
+                    <button class="button secondary" data-ai="explain">解释选中文本</button>
+                    <button class="button secondary" data-ai="translate">翻译选中文本</button>
+                  </div>
+                  <label class="ai-question">
+                    <span>基于文档提问</span>
+                    <textarea id="aiQuestion" rows="3" placeholder="这篇文档主要讲了什么？"></textarea>
+                  </label>
+                  <button class="button primary full" id="askAiButton">提问</button>
+                  <div class="ai-answer" id="aiAnswer">
+                    <strong>AI 阅读助手</strong>
+                    <p>选择一段文字，或点击上方按钮获取当前文档的 mock 总结。</p>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </section>
+
+          <section class="view" id="view-notes" aria-labelledby="notesTitle">
+            <div class="page-heading compact">
+              <div>
+                <p class="eyebrow">Notes</p>
+                <h1 id="notesTitle">笔记</h1>
+              </div>
+              <button class="button primary" id="newNoteButton">新建笔记</button>
+            </div>
+
+            <div class="notes-layout">
+              <aside class="notes-list-panel">
+                <label class="search-field wide">
+                  <span>Search</span>
+                  <input id="noteSearch" type="search" placeholder="搜索笔记" />
+                </label>
+                <div class="note-list" id="noteList"></div>
+              </aside>
+              <section class="note-editor-panel">
+                <div class="editor-toolbar">
+                  <button>B</button>
+                  <button>I</button>
+                  <button>H1</button>
+                  <button>Quote</button>
+                  <span id="saveStatus">已保存</span>
+                </div>
+                <input class="note-title-input" id="noteTitleInput" value="批注是理解的外部记忆" />
+                <div class="note-editor" id="noteEditor" contenteditable="true">
+                  <p>这条笔记来自《深度学习论文阅读方法.pdf》的高亮段落。</p>
+                  <p>核心观点：阅读器不仅要展示内容，还要承载用户对内容的组织过程。批注、摘录、笔记和 AI 解释应该共同服务于理解，而不是分散注意力。</p>
+                </div>
+              </section>
+              <aside class="source-panel">
+                <h3>来源</h3>
+                <p class="source-title">深度学习论文阅读方法.pdf</p>
+                <blockquote>稳定的高亮位置需要保存相对坐标，而不是固定像素。</blockquote>
+                <button class="button secondary full" data-view-trigger="reader">回到原文</button>
+              </aside>
+            </div>
+          </section>
+
+          <section class="view" id="view-settings" aria-labelledby="settingsTitle">
+            <div class="page-heading compact">
+              <div>
+                <p class="eyebrow">Settings</p>
+                <h1 id="settingsTitle">设置</h1>
+              </div>
+            </div>
+
+            <div class="settings-layout">
+              <aside class="settings-nav">
+                <button class="active">用户资料</button>
+                <button>主题</button>
+                <button>存储空间</button>
+                <button>AI 配置</button>
+              </aside>
+              <section class="settings-form">
+                <div class="form-section">
+                  <h2>用户资料</h2>
+                  <label>
+                    <span>用户名</span>
+                    <input value="researcher" />
+                  </label>
+                  <label>
+                    <span>邮箱</span>
+                    <input value="reader@example.com" />
+                  </label>
+                  <button class="button primary">保存资料</button>
+                </div>
+                <div class="form-section">
+                  <h2>主题设置</h2>
+                  <div class="segmented">
+                    <button class="active">浅色</button>
+                    <button>深色预留</button>
+                    <button>跟随系统</button>
+                  </div>
+                </div>
+                <div class="form-section">
+                  <h2>AI API 配置预留</h2>
+                  <label>
+                    <span>Provider</span>
+                    <select>
+                      <option>Mock Provider</option>
+                      <option>OpenAI</option>
+                      <option>Claude</option>
+                      <option>Ollama</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>API Key</span>
+                    <input type="password" placeholder="后续接入真实模型时填写" />
+                  </label>
+                </div>
+              </section>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast hidden" id="toast"></div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
