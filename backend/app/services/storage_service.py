@@ -23,7 +23,7 @@ class StorageService:
         try:
             if not self.client.bucket_exists(settings.MINIO_BUCKET):
                 self.client.make_bucket(settings.MINIO_BUCKET)
-        except S3Error as e:
+        except Exception:
             # In development, MinIO might not be available
             if settings.ENV == "development":
                 return
@@ -40,7 +40,7 @@ class StorageService:
                 content_type=content_type,
             )
             return object_name
-        except S3Error as e:
+        except Exception:
             if settings.ENV == "development":
                 # In development without MinIO, still return the path
                 return object_name
@@ -54,7 +54,7 @@ class StorageService:
                 object_name=object_name,
                 expires=expires,
             )
-        except S3Error:
+        except Exception:
             if settings.ENV == "development":
                 return None
             raise
@@ -66,7 +66,7 @@ class StorageService:
                 bucket_name=settings.MINIO_BUCKET,
                 object_name=object_name,
             )
-        except S3Error:
+        except Exception:
             if settings.ENV == "development":
                 return
             raise

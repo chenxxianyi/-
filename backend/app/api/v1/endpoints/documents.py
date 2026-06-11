@@ -38,7 +38,7 @@ def list_documents(
         d.updatedAt = doc.updated_at.isoformat()
         result.append(d)
 
-    return success(data=[r.model_dump(by_alias=True) for r in result])
+    return success(data=[r.model_dump() for r in result])
 
 
 @router.get("/{document_id}")
@@ -59,7 +59,7 @@ def get_document(
         d.uploadedAt = doc.created_at.isoformat()
         d.createdAt = doc.created_at.isoformat()
         d.updatedAt = doc.updated_at.isoformat()
-        return success(data=d.model_dump(by_alias=True))
+        return success(data=d.model_dump())
     except AppException as e:
         return fail(code=e.code, message=e.message)
 
@@ -81,7 +81,7 @@ def upload_document(
         d.uploadedAt = doc.created_at.isoformat()
         d.createdAt = doc.created_at.isoformat()
         d.updatedAt = doc.updated_at.isoformat()
-        return success(data=d.model_dump(by_alias=True))
+        return success(data=d.model_dump())
     except AppException as e:
         return fail(code=e.code, message=e.message)
 
@@ -98,7 +98,7 @@ def update_document(
         service = DocumentService(db)
         doc = service.update_document(current_user, document_id, title=payload.title)
         d = DocumentRead.model_validate(doc)
-        return success(data=d.model_dump(by_alias=True))
+        return success(data=d.model_dump())
     except AppException as e:
         return fail(code=e.code, message=e.message)
 

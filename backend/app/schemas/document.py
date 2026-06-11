@@ -1,11 +1,9 @@
 """Document schemas."""
 
-from __future__ import annotations
-
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class DocumentRead(BaseModel):
@@ -21,22 +19,33 @@ class DocumentRead(BaseModel):
     wordCount: int = Field(default=0, alias="word_count")
     annotationCount: int = 0
     progress: int = 0
-    lastReadPosition: dict | None = Field(default=None, alias="last_read_position")
-    lastReadAt: str | None = Field(default=None, alias="last_read_at")
-    uploadedAt: str = Field(alias="created_at")
-    createdAt: str = Field(alias="created_at")
-    updatedAt: str = Field(alias="updated_at")
+    lastReadPosition: Optional[dict] = Field(default=None, alias="last_read_position")
+    lastReadAt: Optional[str] = Field(default=None, alias="last_read_at")
+    uploadedAt: str = Field(default="", alias="created_at")
+    createdAt: str = Field(default="", alias="created_at")
+    updatedAt: str = Field(default="", alias="updated_at")
 
     model_config = {"from_attributes": True, "populate_by_name": True}
 
+    @field_validator("uploadedAt", "createdAt", "updatedAt", "lastReadAt", mode="before")
+    @classmethod
+    def coerce_datetime(cls, v: Any) -> str:
+        if v is None:
+            return ""
+        if isinstance(v, str):
+            return v
+        if isinstance(v, datetime):
+            return v.isoformat()
+        return str(v)
+
 
 class DocumentUpdate(BaseModel):
-    title: str | None = None
+    title: Optional[str] = None
 
 
 class ReadPositionUpdate(BaseModel):
-    position: dict | None = None
-    progress: int | None = None
+    position: Optional[dict] = None
+    progress: Optional[int] = None
 
 
 class DocumentContent(BaseModel):
