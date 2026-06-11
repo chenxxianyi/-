@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     MINIO_SECURE: bool = False
 
     # CORS
-    CORS_ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
+    CORS_ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5199"
 
     # Upload
     MAX_UPLOAD_SIZE: int = 50 * 1024 * 1024  # 50MB

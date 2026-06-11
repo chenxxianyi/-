@@ -1,12 +1,38 @@
 <template>
-  <main class="auth-page">
+  <main class="auth-page auth-page-register">
     <section class="auth-brand">
-      <div class="brand-mark">KR</div>
-      <h1>阅读工作台</h1>
-      <p>创建账号后开始管理你的文档、批注和笔记。</p>
+      <div class="auth-brand-top">
+        <div class="auth-brand-mark">阅</div>
+        <span>知阅工作台</span>
+      </div>
+      <div class="auth-hero-copy">
+        <p class="auth-eyebrow">Start reading better</p>
+        <h1>给你的资料库一个稳定入口</h1>
+        <p>创建账号后，文档、批注、笔记和阅读进度都会归档到同一个工作台。</p>
+      </div>
+      <div class="auth-preview" aria-hidden="true">
+        <div class="auth-preview-paper main">
+          <span></span>
+          <strong>我的阅读项目</strong>
+          <i></i>
+          <i></i>
+          <em></em>
+          <i></i>
+        </div>
+        <div class="auth-preview-paper note">
+          <span>+</span>
+          <strong>新建知识库</strong>
+          <i></i>
+          <i></i>
+        </div>
+      </div>
     </section>
     <section class="auth-panel">
-      <h2>注册</h2>
+      <div class="auth-panel-head">
+        <p class="auth-eyebrow">Create account</p>
+        <h2>注册账号</h2>
+        <p>开启你的个人阅读工作台。</p>
+      </div>
       <p v-if="authStore.error" class="error-message">{{ authStore.error }}</p>
       <label>
         <span>用户名</span>
@@ -27,7 +53,10 @@
       <button class="button primary full" :disabled="authStore.loading" @click="register">
         {{ authStore.loading ? '注册中…' : '注册' }}
       </button>
-      <RouterLink class="text-button" to="/login">返回登录</RouterLink>
+      <p class="auth-switch">
+        已有账号？
+        <RouterLink class="text-button" to="/login">返回登录</RouterLink>
+      </p>
     </section>
   </main>
 </template>

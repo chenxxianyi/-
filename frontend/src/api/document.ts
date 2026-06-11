@@ -11,9 +11,7 @@ export function fetchDocumentDetailApi(id: number) {
 export function uploadDocumentApi(file: File) {
   const form = new FormData()
   form.append('file', file)
-  return request.post('/documents/upload', form, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  })
+  return request.post('/documents/upload', form)
 }
 
 export function updateDocumentApi(id: number, payload: { title?: string }) {

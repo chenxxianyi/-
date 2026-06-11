@@ -1,0 +1,82 @@
+# Reasonix configuration.
+# Resolution order: flag > ./reasonix.toml > ~/.config/reasonix/config.toml > built-in defaults.
+# Secrets come from the environment via api_key_env; never put keys here.
+
+config_version = 2   # schema marker for diagnostics; old versions may ignore it
+default_model = "deepseek-flash"
+# language      = "zh"   # ui/model language; empty = auto-detect from $LANG / $REASONIX_LANG
+
+[agent]
+# system_prompt = """..."""   # omit to use the built-in prompt for this version
+# system_prompt_file = "prompts/system.md"   # overrides system_prompt when set
+max_steps         = 0   # executor tool-call rounds; 0 = no limit
+planner_max_steps = 12   # planner read-only tool-call rounds; 0 = no limit
+temperature       = 0.0
+auto_plan   = "off"   # off|on; off keeps plan mode manual
+# auto_plan_classifier = "deepseek-flash"   # optional; only used for borderline tasks
+soft_compact_ratio  = 0.5   # notice only; keeps cache-first prefix intact
+compact_ratio       = 0.8   # try compacting when prompt reaches this fraction
+compact_force_ratio = 0.9   # force compacting at this high-water mark
+# planner_model = "mimo"   # optional: enable two-model collaboration
+# subagent_model = "deepseek-pro"   # optional default for runAs=subagent skills
+# subagent_models = { review = "deepseek-pro", security_review = "deepseek-pro" }   # per-skill overrides
+# subagent_effort = "high"   # optional default effort for subagents
+# subagent_efforts = { review = "max", task = "high" }   # per-tool/skill effort overrides
+# output_style = "explanatory"   # explanatory | learning | concise | custom; empty = default
+
+[tools]
+enabled = []   # empty = all built-in tools
+bash_timeout_seconds = 120   # foreground safety cap; set 0 for no tool-local cap
+
+[codegraph]
+enabled      = true   # built-in MCP server; off by default for first-run sessions
+auto_install = true   # fetch the runtime when CodeGraph is enabled but missing
+# path       = ""   # empty = cache, then PATH, then a bundle beside reasonix
+
+[lsp]
+enabled = true   # language server tools; servers launch lazily when used
+# [lsp.servers.go]
+# command = "gopls"
+# args = []
+# extensions = [".go"]
+
+[skills]
+# paths = ["~/my-skills", "../shared/skills"]   # extra custom skill roots
+# excluded_paths = ["~/.agents/skills"]   # hide convention roots without deleting folders
+# max_depth = 3   # nested scan depth; set 1 for legacy root-only discovery
+# disabled_skills = ["review"]   # hide noisy or unwanted skills
+
+[permissions]
+# Per-call gating. mode = writer fallback when no rule matches: ask|allow|deny.
+# Readers always default to allow. Precedence: deny > ask > allow > fallback.
+# Rules are "Tool" or "Tool(specifier)"; e.g. Bash(go test:*), Edit(src/**).
+mode  = "ask"
+# deny = ["Bash(rm -rf*)", "Bash(git push*)"]   # hard-blocked in every mode
+allow = ["Bash(python -c \"\nfrom PIL import Image\nimport numpy as np\nimg = Image.open('.reasonix/attachments/clipboard-20260611-144231.519307-000005.png')\narr = np.array(img)\n\n# Look at bottom of image\nprint('=== Bottom rows (1130-1153) ===')\nfor y in range(1130, arr.shape[0], 1):\n    row = arr[y, :, :]\n    colors = {}\n    for x in range(0, arr.shape[1], 2):\n        r, g, b, a = row[x]\n        if a > 200:\n            qr, qg, qb = r//30*30, g//30*30, b//30*30\n            key = (qr, qg, qb)\n            colors[key] = colors.get(key, 0) + 1\n    top = sorted(colors.items(), key=lambda kv: -kv[1])[:3]\n    desc = ', '.join(f'RGB({c[0]},{c[1]},{c[2]})x{n}' for c, n in top[:2])\n    total = sum(n for _, n in top)\n    bg = sum(n for c, n in top if c[0] >= 220 and c[1] >= 220 and c[2] >= 220)\n    pct = bg/total*100 if total else 0\n    if pct < 99:\n        print(f'  R{y}: {desc} [bg={pct:.0f}%]')\n\nprint()\n# Check the leftmost 20px - window chrome or rounded corner?\nprint('=== Leftmost 20px ===')\nfor y in [0, 50, 100, 150, 200, 250, 300, 400, 500]:\n    colors_at_edge = {}\n    for x in range(0, 20, 1):\n        r, g, b, a = arr[y, x]\n        if a > 200:\n            colors_at_edge[(r//30*30, g//30*30, b//30*30)] = colors_at_edge.get((r//30*30, g//30*30, b//30*30), 0) + 1\n    desc = ', '.join(f'RGB({c[0]},{c[1]},{c[2]})x{n}' for c, n in sorted(colors_at_edge.items(), key=lambda kv: -kv[1])[:3])\n    print(f'  R{y}: {desc}')\n\" 2>&1)", "Bash(python -c \"\nfrom PIL import Image\nimport numpy as np\nimg = Image.open('.reasonix/attachments/clipboard-20260611-151810.680456-000006.png')\narr = np.array(img)\n\n# Full vertical scan - find distinct sections\nlast_desc = None\nfor y in range(0, arr.shape[0], 1):\n    row = arr[y, 30:570, :]\n    colors = {}\n    for x in range(0, row.shape[0], 2):\n        r, g, b, a = row[x]\n        if a > 200:\n            qr, qg, qb = r//30*30, g//30*30, b//30*30\n            key = (qr, qg, qb)\n            colors[key] = colors.get(key, 0) + 1\n    \n    sorted_colors = sorted(colors.items(), key=lambda kv: -kv[1])\n    top3 = sorted_colors[:3]\n    total = sum(n for _, n in top3)\n    \n    bg_count = sum(n for c, n in top3 if c[0] >= 220 and c[1] >= 220 and c[2] >= 220 and abs(c[0]-c[1]) <= 20 and abs(c[1]-c[2]) <= 20)\n    bg_pct = bg_count / total * 100 if total > 0 else 0\n    \n    non_bg = [(c, n) for c, n in top3 if not (c[0] >= 220 and c[1] >= 220 and c[2] >= 220)]\n    \n    if bg_pct < 99 or non_bg:\n        desc_parts = [f'RGB({c[0]},{c[1]},{c[2]})' for c, n in non_bg[:2]]\n        desc = f'bg={bg_pct:.0f}% {\\\"+\\\".join(desc_parts)}'\n    else:\n        desc = 'BG'\n    \n    if desc != last_desc:\n        print(f'R{y:4d} {desc}')\n        last_desc = desc\n\" 2>&1)", "Bash(python -c \"\nfrom PIL import Image\nimport numpy as np\nimg = Image.open('.reasonix/attachments/clipboard-20260611-151810.680456-000006.png')\narr = np.array(img)\n\n# Identify the main sections and their boundaries by analyzing BG vs content\nprint('=== Content vs Gap analysis ===')\nprev_state = 'bg'\nfor y in range(0, arr.shape[0], 1):\n    center = arr[y, 100:550, :]\n    non_bg = 0\n    for x in range(0, center.shape[0], 2):\n        r, g, b, a = center[x]\n        if a > 200:\n            is_bg = (r > 230 and g > 230 and b > 230 and abs(int(r)-int(g)) < 15 and abs(int(g)-int(b)) < 15)\n            if not is_bg:\n                non_bg += 1\n    \n    is_content = non_bg > 10\n    \n    if is_content and prev_state == 'bg':\n        print(f'  Content starts at R{y}')\n        prev_state = 'content'\n    elif not is_content and prev_state == 'content' and non_bg < 5:\n        print(f'  Content ends at R{y-1}, GAP starts ({non_bg} px)')\n        prev_state = 'gap'\n        gap_start = y\n    elif is_content and prev_state == 'gap':\n        print(f'  GAP ends at R{y-1} ({y - gap_start}px gap)')\n        prev_state = 'content'\n    elif not is_content and prev_state == 'gap' and non_bg > 5:\n        prev_state = 'content'\n        gap_start = -1\n\" 2>&1)"]
+# ask = ["Edit(src/**)"]   # force a prompt even if otherwise allowed
+
+[sandbox]
+# Confine tool blast radius. File-writers (write_file/edit_file/multi_edit)
+# may only write under workspace_root (empty = current dir) + allow_write.
+# bash = "enforce" (default) jails each command in an OS sandbox (macOS now;
+# graceful fallback elsewhere); "off" disables it. network allows egress.
+# workspace_root = ""            # default: current working directory
+# allow_write = ["/tmp"]          # extra dirs writers may also modify
+bash    = "enforce"
+network = true
+
+[statusline]
+# A custom status line: a command whose first stdout line replaces the built-in
+# data row. It receives {"model","contextUsed","contextWindow","cwd"} as JSON on stdin.
+# command = "my-statusline.sh"
+
+# External MCP servers. type: "stdio" (default, a subprocess) | "http" | "sse".
+# ${VAR} / ${VAR:-default} are expanded from the environment in command/args/env/url/headers.
+# [[plugins]]
+# name    = "example"
+# command = "reasonix-plugin-example"
+# [[plugins]]                                  # a remote server over Streamable HTTP
+# name    = "stripe"
+# type    = "http"
+# url     = "https://mcp.stripe.com"
+# headers = { Authorization = "Bearer ${STRIPE_KEY}" }
